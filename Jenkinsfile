@@ -1,8 +1,7 @@
 pipeline {
     agent any
     triggers {
-        // Poll SCM as fallback every 5 minutes (optional)
-        pollSCM('H/5 * * * *')
+        pollSCM('H/5 * * * *')  // Poll every 5 minutes as fallback
     }
     stages {
         stage('Checkout') {
@@ -14,22 +13,19 @@ pipeline {
                 checkout scm: [
                     $class: 'GitSCM', 
                     branches: [[name: 'refs/heads/development']], 
-                    userRemoteConfigs: [[url: 'https://github.com/YOUR_GITHUB_USERNAME/jenkins-dev-branch-webhook-demo.git']]
+                    userRemoteConfigs: [[url: 'https://github.com/mayur2801/jenkins-dev-branch-webhook-demo.git']]
                 ]
             }
         }
         stage('Build') {
             steps {
                 echo "Running build steps..."
-                // Add your build commands here
             }
         }
         stage('Deploy') {
             steps {
                 echo "Running deploy steps..."
-                // Add your deploy commands here
             }
         }
     }
 }
-
