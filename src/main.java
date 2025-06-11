@@ -9,3 +9,8 @@ public class Main {
 // Triggering Jenkins pipeline
 // Triggering Jenkins pipeline
 // Triggering Jenkins pipeline
+// Jenkins test
+// Triggering Jenkins pipeline
+// Triggering Jenkins pipeline
+// Triggering Jenkinsss pipeline
+//hello from amyur

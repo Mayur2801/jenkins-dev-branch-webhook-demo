@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        REPO_URL = 'https://github.com/Mayur2801/jenkins-dev-branch-webhook-demo.git'
+        BRANCH = 'development'
+    }
+
+    stages {
+        stage('Decrypt Token') {
+            steps {
+                withCredentials([string(credentialsId: 'DECRYPT_PASSWORD', variable: 'DECRYPT_PASS')]) {
+                    script {
+                        // Decrypt the encrypted GitHub token file
+                        sh '''
+                            openssl enc -aes-256-cbc -d -a -salt \
+                                -in secrets/github_token.enc \
+                                -out github_token.txt \
+                                -pass pass:$DECRYPT_PASS
+                        '''
+                        // Load the decrypted token into an environment variable
+                        env.GH_TOKEN = readFile('github_token.txt').trim()
+                    }
+                }
+            }
+        }
+
+        stage('Checkout') {
+            when { branch 'development' }
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "refs/heads/${env.BRANCH}"]],
+                    userRemoteConfigs: [[
+                        url: env.REPO_URL,
+                        credentialsId: 'GITHUB_TOKEN'  // Optional if public
+                    ]]
+                ])
+                echo "Checked out code from ${env.REPO_URL}"
+            }
+        }
+
+        stage('Use Token') {
+            steps {
+                sh 'curl -H "Authorization: token $GH_TOKEN" https://api.github.com/user'
+            }
+        }
+    }
+}
+
