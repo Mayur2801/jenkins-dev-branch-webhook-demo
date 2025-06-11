@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    environment {
+        REPO_URL = 'https://github.com/mayur2801/jenkins-dev-branch-webhook-demo.git'
+        TARGET_BRANCH = 'development'
+    }
+
+    triggers {
+        pollSCM('H/5 * * * *') // fallback polling
+    }
+
+    stages {
+        stage('Checkout') {
+            when {
+                branch 'development'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GH_TOKEN')]) {
+                    checkout([$class: 'GitSCM',
+                        branches: [[name: "refs/heads/${env.TARGET_BRANCH}"]],
+                        userRemoteConfigs: [[
+                            url: "${env.REPO_URL}",
+                            credentialsId: 'GITHUB_TOKEN'
+                        ]]
+                    ])
+                    echo "Checked out ${env.TARGET_BRANCH} branch from ${env.REPO_URL}"
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Running build on ${env.TARGET_BRANCH} branch"
+                // your build logic here
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying from branch: ${env.TARGET_BRANCH}"
+                // your deploy logic here
+            }
+        }
+    }
+}
