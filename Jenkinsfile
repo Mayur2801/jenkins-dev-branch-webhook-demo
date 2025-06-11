@@ -13,7 +13,7 @@ pipeline {
                 checkout scm: [
                     $class: 'GitSCM', 
                     branches: [[name: 'refs/heads/development']], 
-                    userRemoteConfigs: [[url: 'https://github.com/mayur2801/jenkins-dev-branch-webhook-demo.git']]
+                    userRemoteConfigs: [[url: 'https://github.com/Mayur2801/jenkins-dev-branch-webhook-demo.git']]
                 ]
             }
         }
