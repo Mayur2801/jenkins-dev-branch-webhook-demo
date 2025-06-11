@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+
+    environment {
+        GH_TOKEN_FILE = 'secrets/github_token.txt'
+    }
+
+    stages {
+        stage('Decrypt Token') {
+            steps {
+                withCredentials([string(credentialsId: 'DECRYPT_PASSWORD', variable: 'DECRYPT_PASS')]) {
+                    sh '''
+                        openssl enc -aes-256-cbc -d -a -salt \
+                            -in secrets/github_token.enc \
+                            -out secrets/github_token.txt \
+                            -pass pass:$DECRYPT_PASS
+                    '''
+                }
+                script {
+                    env.GH_TOKEN = readFile(env.GH_TOKEN_FILE).trim()
+                }
+            }
+        }
+
+        stage('Use Token') {
+            steps {
+                sh 'curl -H "Authorization: token $GH_TOKEN" https://api.github.com/user'
+            }
+        }
+    }
+}
